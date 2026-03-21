@@ -9,9 +9,13 @@ export async function GET(request) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect('http://localhost:3000/dashboard')
+      return NextResponse.redirect(
+        new URL('/dashboard', request.nextUrl.origin)
+      )
     }
   }
 
-  return NextResponse.redirect('http://localhost:3000/login')
+  return NextResponse.redirect(
+    new URL('/login', request.nextUrl.origin)
+  )
 }

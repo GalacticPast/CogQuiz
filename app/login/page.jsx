@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase-browser'
+import { signInWithGoogle, signInWithEmail } from '@/lib/api'
 import CogQuizLogo from '@/components/CogQuizLogo'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,27 +11,18 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
   setLoading(true)
-  const supabase = createClient()
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  })
-  if (error) {
-    alert(error.message)
-  } else {
+  try {
+    await signInWithEmail(email, password)
     window.location.href = '/dashboard'
+  } catch (e) {
+    alert(e.message)
+  } finally {
+    setLoading(false)
   }
-  setLoading(false)
 }
 
   const handleGoogleLogin = async () => {
-  const supabase = createClient()
-  await supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`
-    }
-  })
+  await signInWithGoogle()
 }
 
   return (
