@@ -1,8 +1,7 @@
 'use client'
 import { useState } from 'react'
-import Image from 'next/image'
 import { createClient } from '@/lib/supabase-browser'
-
+import CogQuizLogo from '@/components/CogQuizLogo'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -56,21 +55,24 @@ export default function LoginPage() {
         marginBottom: '32px',
         animation: 'fadeDown 0.5s ease'
       }}>
-        <Image
-          src="/logo.png"
-          alt="Study Snaps Logo"
-          width={120}
-          height={120}
-          style={{ marginBottom: '8px' }}
-        />
-        <p style={{ 
-          color: '#8a6a50', 
-          margin: 0, 
-          fontSize: '14px',
-          letterSpacing: '0.3px'
-        }}>
-          Turn your lectures into quizzes
-        </p>
+<CogQuizLogo size={90} />
+<h1 style={{
+  fontSize: '2rem',
+  fontWeight: '700',
+  margin: '8px 0 6px 0',
+  letterSpacing: '-0.5px',
+  color: '#3d2b1f'
+}}>
+  CogQuiz
+</h1>
+<p style={{ 
+  color: '#8a6a50', 
+  margin: 0, 
+  fontSize: '14px',
+  letterSpacing: '0.3px'
+}}>
+  Turn your lectures into quizzes
+</p>
       </div>
 
       {/* Card */}
