@@ -26,11 +26,11 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const fakeUser = null
-      if (!fakeUser) {
-        router.push('/login')
-        return
-      }
+    //   const fakeUser = null
+    //   if (!fakeUser) {
+    //     router.push('/login')
+    //     return
+    //   }
       setAuthLoading(false)
     }
     checkAuth()
