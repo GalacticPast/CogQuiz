@@ -1,21 +1,7 @@
-'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-
-const FAKE_DUE_CARDS = [
-  { id: 1, question: "What is the powerhouse of the cell?", deck: "Biology 101", difficulty: "easy" },
-  { id: 2, question: "What does DNA stand for?", deck: "Biology 101", difficulty: "medium" },
-  { id: 3, question: "What is Newton's First Law?", deck: "Physics 101", difficulty: "hard" },
-  { id: 4, question: "What is the speed of light?", deck: "Physics 101", difficulty: "easy" },
-  { id: 5, question: "What is the Krebs cycle?", deck: "Biology 101", difficulty: "hard" },
-]
-
-const FAKE_STATS = {
-  streak: 3,
-  totalStudied: 24,
-  accuracy: 78,
-  decks: 2
-}
+"use client";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getDashboardData, getDueCards, getSession } from "../../lib/api";
 
 function useCountUp(target, duration = 1000) {
   const [count, setCount] = useState(0)
@@ -67,10 +53,10 @@ export default function DashboardPage() {
 
   // ── YOUR ORIGINAL FUNCTION — NOT TOUCHED ──
   const getDifficultyColor = (difficulty) => {
-    if (difficulty === 'easy') return { bg: '#d4edda', text: '#2d6a35' }
-    if (difficulty === 'medium') return { bg: '#fff3cd', text: '#856404' }
-    return { bg: '#fde8e8', text: '#8b2020' }
-  }
+    if (difficulty === "easy") return { bg: "#d4edda", text: "#2d6a35" };
+    if (difficulty === "medium") return { bg: "#fff3cd", text: "#856404" };
+    return { bg: "#fde8e8", text: "#8b2020" };
+  };
 
   const animatedStreak = useCountUp(stats?.streak ?? 0)
   const animatedAccuracy = useCountUp(stats?.accuracy ?? 0)
@@ -86,21 +72,35 @@ export default function DashboardPage() {
     </div>
   )
 
-  if (loading) return (
-    <div style={{ display:'flex', alignItems:'center',
-      justifyContent:'center', height:'100vh',
-      backgroundColor:'#f5f0e8', color:'#6B4226',
-      fontFamily:"'Inter', sans-serif" }}>
-      <div style={{ textAlign:'center' }}>
-        <div style={{ width:'36px', height:'36px',
-          border:'3px solid #d4c4b0',
-          borderTop:'3px solid #6B4226',
-          borderRadius:'50%', margin:'0 auto 12px',
-          animation:'spin 0.8s linear infinite' }}/>
-        Loading your dashboard...
+  if (loading)
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          backgroundColor: "#f5f0e8",
+          color: "#6B4226",
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              width: "36px",
+              height: "36px",
+              border: "3px solid #d4c4b0",
+              borderTop: "3px solid #6B4226",
+              borderRadius: "50%",
+              margin: "0 auto 12px",
+              animation: "spin 0.8s linear infinite",
+            }}
+          />
+          Loading your dashboard...
+        </div>
       </div>
-    </div>
-  )
+    );
 
   return (
     <div style={{
@@ -302,20 +302,33 @@ export default function DashboardPage() {
               fontWeight:'600', margin:0 }}>
               Due Today
             </h2>
-            <span style={{ backgroundColor:'#6B4226', color:'white',
-              borderRadius:'99px', padding:'3px 10px',
-              fontSize:'13px', fontWeight:'600' }}>
+            <span
+              style={{
+                backgroundColor: "#6B4226",
+                color: "white",
+                borderRadius: "99px",
+                padding: "3px 10px",
+                fontSize: "13px",
+                fontWeight: "600",
+              }}
+            >
               {dueCards.length} cards
             </span>
           </div>
 
           {dueCards.length === 0 ? (
-            <div style={{ textAlign:'center', padding:'32px 0' }}>
-              <div style={{ fontSize:'40px', marginBottom:'12px' }}>✅</div>
-              <p style={{ color:'#6B4226', fontWeight:'600', margin:'0 0 4px' }}>
+            <div style={{ textAlign: "center", padding: "32px 0" }}>
+              <div style={{ fontSize: "40px", marginBottom: "12px" }}>✅</div>
+              <p
+                style={{
+                  color: "#6B4226",
+                  fontWeight: "600",
+                  margin: "0 0 4px",
+                }}
+              >
                 All caught up!
               </p>
-              <p style={{ color:'#8a6a50', fontSize:'13px', margin:0 }}>
+              <p style={{ color: "#8a6a50", fontSize: "13px", margin: 0 }}>
                 No cards due today. Upload more lectures!
               </p>
             </div>
@@ -352,14 +365,21 @@ export default function DashboardPage() {
                         {card.deck}
                       </p>
                     </div>
-                    <span style={{ backgroundColor: diff.bg,
-                      color: diff.text, borderRadius:'99px',
-                      padding:'3px 10px', fontSize:'12px',
-                      fontWeight:'500', whiteSpace:'nowrap' }}>
+                    <span
+                      style={{
+                        backgroundColor: diff.bg,
+                        color: diff.text,
+                        borderRadius: "99px",
+                        padding: "3px 10px",
+                        fontSize: "12px",
+                        fontWeight: "500",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
                       {card.difficulty}
                     </span>
                   </div>
-                )
+                );
               })}
 
               <button
@@ -433,5 +453,5 @@ export default function DashboardPage() {
         }
       `}</style>
     </div>
-  )
+  );
 }

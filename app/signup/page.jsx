@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import { signUpWithEmail, signInWithGoogle } from '@/lib/api'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -23,15 +24,18 @@ export default function SignupPage() {
       return
     }
     setLoading(true)
-    setError(null)
-    // TODO: connect to Supabase when Pranaya gives the function
-    console.log('signing up with', email, password)
-    setLoading(false)
+    try {
+      await signUpWithEmail(email, password)
+      window.location.href = '/dashboard'
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleSignup = async () => {
-    // TODO: Pranaya's Google OAuth function
-    console.log('google signup clicked')
+    await signInWithGoogle()
   }
 
   return (

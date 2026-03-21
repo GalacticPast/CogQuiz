@@ -1,6 +1,8 @@
 import { generateQuizFromPDF } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase-server'
-
+//
+// we can delete this I think 
+//
 // Exception note for teammates: this route requires Supabase auth cookies.
 // Terminal calls without session cookies will return 401 (Not logged in).
 async function requireAuthOrThrow(supabase) {
@@ -28,9 +30,10 @@ export async function POST(request) {
     const user = await requireAuthOrThrow(supabase)
 
     // Convert file to buffer and generate quiz questions using Gemini
+    console.log("Is this even working? ")
     const buffer = Buffer.from(await file.arrayBuffer())
     const quiz = await generateQuizFromPDF(buffer)
-
+    console.log("It might be")
     // Create a new deck for this PDF and insert generated cards
     const { data: deck } = await supabase
       .from('decks')
@@ -62,11 +65,13 @@ export async function POST(request) {
 
     return Response.json({ success: true, deck_id: deck.id, card_count: cards.length })
 
-  } catch (e) {
-    if (e.message === 'Not logged in') {
-      return Response.json({ error: 'Not logged in' }, { status: 401 })
-    }
-
-    return Response.json({ error: e.message }, { status: 500 })
+  } catch (err) {
+    // 1. Log the FULL error to your terminal so you can read it
+    console.error("🔥 CRASH IN API ROUTE:", err); 
+    
+    // 2. Send the actual error message back to the browser for easier debugging
+    return NextResponse.json(
+      { error: err.message || 'Internal server error' }, 
+      { status: 500 }
+    );
   }
-}
