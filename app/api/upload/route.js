@@ -1,6 +1,8 @@
 import { generateQuizFromPDF } from '@/lib/gemini'
 import { createClient } from '@/lib/supabase-server'
-
+//
+// we can delete this I think 
+//
 // Exception note for teammates: this route requires Supabase auth cookies.
 // Terminal calls without session cookies will return 401 (Not logged in).
 async function requireAuthOrThrow(supabase) {

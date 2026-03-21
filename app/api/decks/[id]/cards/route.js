@@ -1,15 +1,17 @@
-import { getCardsByDeckId } from '@/lib/db'
+// same thing with this thing, remove the whole api folder
+
+import { getCardsByDeckId } from "@/lib/db";
 
 export async function GET(_request, { params }) {
   try {
-    const { id } = await params
-    const cards = await getCardsByDeckId(id)
-    return Response.json({ success: true, cards })
+    const { id } = await params;
+    const cards = await getCardsByDeckId(id);
+    return Response.json({ success: true, cards });
   } catch (e) {
-    if (e.message === 'Not authenticated') {
-      return Response.json({ error: 'Not logged in' }, { status: 401 })
+    if (e.message === "Not authenticated") {
+      return Response.json({ error: "Not logged in" }, { status: 401 });
     }
 
-    return Response.json({ error: e.message }, { status: 500 })
+    return Response.json({ error: e.message }, { status: 500 });
   }
 }
