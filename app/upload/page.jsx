@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { processUploadedPdf } from '../../lib/api'; // <--- IMPORT IT HERE
 
 export default function UploadPage() {
   const router = useRouter()
@@ -18,71 +19,28 @@ export default function UploadPage() {
     }
     checkAuth()
   }, [router])
-
-  // Calls the backend upload route, which uses the prompt defined in lib/gemini.js.
-  const generateQuizViaGemini = async (file) => {
-    const formData = new FormData()
-    formData.append('file', file)
-
-    return fetch('/api/upload', {
-      method: 'POST',
-      body: formData
-    })
-  }
-
-  const ensureDefaultCategory = async () => {
-    const res = await fetch('/api/categories/ensure', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: 'General' })
-    })
-
-    return res
-  }
-
-  const handleUpload = async (file) => {
-    if (!file || file.type !== 'application/pdf') {
-      setError('Please upload a PDF file only.')
-      return
-    }
-    setUploading(true)
-    setError(null)
-    try {
-      // Ensure a default category exists through db.js-backed API before upload workflow.
-      const categoryRes = await ensureDefaultCategory()
-      if (categoryRes.status === 401) {
-        router.push('/login')
-        return
-      }
-
-      const uploadRes = await generateQuizViaGemini(file)
-      if (uploadRes.status === 401) {
-        router.push('/login')
-        return
-      }
-      const uploadData = await uploadRes.json()
-      if (!uploadRes.ok) {
-        setError('Quiz generation failed. Please try a different PDF.')
-        setUploading(false)
-        return
-      }
-      await fetchCards(uploadData.deck_id)
-    } catch (err) {
-      setError('Something went wrong. Please try again.')
-    }
-    setUploading(false)
-  }
-
-  // we need a function that calls the backend(/lib/db.js) to fetch cards for the new deck, since the upload route only returns deck metadata. This is necessary to show the quiz preview on the upload page before navigating to the quiz interface.
-  const fetchCards = async (id) => {
-    try {
-      const res = await fetch(`/api/decks/${id}/cards`)
-      const data = await res.json()
-      setCards(data.cards)
-    } catch (err) {
-      setError('Cards were created but failed to load. Please refresh.')
-    }
-  }
+    
+    const handleUpload = async (file) => {
+         try {
+           // Clear any previous errors before trying
+           setError(''); 
+           
+           // Await the upload process
+           await processUploadedPdf(file);
+           
+           // (Optional) Handle success here, like redirecting to the quiz page
+           
+         } catch (err) {
+           // 1. Set the error message passed up from processUploadedPdf
+           setError(err.message);
+           
+           // 2. Go back to the dashboard
+           // Use router.push('/dashboard') for Next.js 
+           // OR navigate('/dashboard') for React Router
+             // maybe just show the error?  ask for clarification later
+           //router.push('/dashboard'); 
+         }
+       }
 
   if (authLoading) return (
     <div style={{ display:'flex', alignItems:'center',
