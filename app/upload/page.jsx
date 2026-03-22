@@ -29,7 +29,7 @@ export default function UploadPage() {
       const newDeckId = await processUploadedPdf(file);
 
       // Redirect to the newly created quiz!
-      router.push(`/quiz/${newDeckId}`);
+      router.push(`/dashboard/`);// I want the page to redirect back to the dashboard after the upload is successful
     } catch (err) {
       setError(err.message);
       // router.push('/dashboard'); // Only do this if you actually want them to leave the page on error
