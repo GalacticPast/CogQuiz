@@ -33,32 +33,41 @@ export async function POST(request) {
     console.log('Generating quiz from PDF...')
     const buffer = Buffer.from(await file.arrayBuffer())
     const quiz = await generateQuizFromPDF(buffer)
-    console.log('Quiz generated successfully:', quiz.category)
+    console.log('Gemini output:', JSON.stringify(quiz).substring(0, 100))
 
     // Ensure a profile exists to satisfy foreign key constraints on the categories table
+    console.log('Syncing profile for user:', user.id)
     const { error: profileError } = await supabase
       .from('profiles')
-      .upsert({ id: user.id }) // Basic upsert to ensure the row exists
+      .upsert({ id: user.id })
     
     if (profileError) {
-      console.warn('Profile sync skipped or failed (might already exist):', profileError.message)
+      console.error('Profile sync failed:', profileError.message)
     }
 
     // Create a new deck for this PDF and insert generated cards
-    const categoryName = quiz.category || 'Uploaded'
+    // Sometimes Gemini 2.5 returns just an array, sometimes an object with 'category'
+    const isArrayFormat = Array.isArray(quiz);
+    const categoryName = (!isArrayFormat && quiz.category) ? quiz.category : 'UploadedPDF-' + file.name.substring(0, 10);
+    console.log('Category name:', categoryName)
 
-    // Use a safer find-or-create pattern instead of assumed upsert constraints
+    // Use a safer find-or-create pattern. 
+    // Optimization: If a category with this name exists but belongs to NO ONE or SOMEONE ELSE, 
+    // and the table has a global unique constraint on 'name', we must reuse it.
     let { data: category, error: catError } = await supabase
       .from('categories')
       .select('id')
-      .eq('user_id', user.id)
       .eq('name', categoryName)
       .maybeSingle()
 
-    if (catError) throw new Error(catError.message)
+    if (catError) {
+      console.error('Category select error:', catError)
+      throw new Error(catError.message)
+    }
 
     if (!category) {
-      console.log('Creating new category for user:', user.id)
+      console.log('Creating new category...')
+      // Try to insert. If it fails due to race condition, we catch it below.
       const { data: newCat, error: createError } = await supabase
         .from('categories')
         .insert({ user_id: user.id, name: categoryName })
@@ -66,20 +75,36 @@ export async function POST(request) {
         .single()
 
       if (createError) {
-        console.error('Category creation failed:', createError)
-        throw new Error(`Category creation failed: ${createError.message} (User: ${user.id})`)
+        // If it's a duplicate key error (23505), someone just created it. Fetch it.
+        if (createError.code === '23505') {
+          const { data: recat } = await supabase.from('categories').select('id').eq('name', categoryName).single()
+          category = recat
+        } else {
+          console.error('Category creation failed:', createError)
+          throw new Error(`Category creation failed: ${createError.message}`)
+        }
+      } else {
+        category = newCat
       }
-      category = newCat
     }
+    console.log('Category ID:', category?.id)
 
-    const { data: deck } = await supabase
+    const { data: deck, error: deckError } = await supabase
       .from('decks')
-      .insert({ user_id: user.id, category_id: category.id, title: file.name, source_filename: file.name })
+      .insert({ 
+        user_id: user.id, 
+        category_id: category.id, 
+        title: file.name, 
+        source_filename: file.name 
+      })
       .select()
       .single()
+    
+    if (deckError) throw new Error(`Deck creation failed: ${deckError.message}`)
 
       // Map quiz questions to card records (supports legacy and current Gemini shapes).
-      const cards = (quiz.questions || []).map(q => {
+      const questionsArray = isArrayFormat ? quiz : (quiz.questions || []);
+      const cards = questionsArray.map(q => {
         const normalizedOptions = Array.isArray(q.options)
           ? q.options
           : [q.options?.A, q.options?.B, q.options?.C, q.options?.D].filter(Boolean)
