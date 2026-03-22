@@ -14,43 +14,44 @@ export default function CategoriesPage() {
     const load = async () => {
       try {
         // TODO: swap with real API when Brizein is ready
-        // const res = await fetch('/api/categories')
-        // const data = await res.json()
-        // setCategories(data)
+   const res = await fetch('/api/categories', { method: 'POST' })
+   console.log("we got the result" + res)
+setCategories(Array.isArray(res) ? res : [])
 
-        // Fake data for now
-        setCategories([
-          {
-            id: 1, name: 'Set Theory (CS19...)',
-            created_at: '2026-03-18',
-            decks: [
-              { id: 1, name: 'Week 1 - Intro', cardCount: 10, created_at: '2026-03-18' },
-              { id: 2, name: 'Week 2 - Operations', cardCount: 8, created_at: '2026-03-19' },
-            ]
-          },
-          {
-            id: 2, name: 'Discrete Mathematics',
-            created_at: '2026-03-19',
-            decks: [
-              { id: 3, name: 'Chapter 1', cardCount: 12, created_at: '2026-03-19' },
-            ]
-          },
-          {
-            id: 3, name: 'Java Object Oriented',
-            created_at: '2026-03-20',
-            decks: [
-              { id: 4, name: 'Lecture 1', cardCount: 15, created_at: '2026-03-20' },
-              { id: 5, name: 'Lecture 2', cardCount: 9, created_at: '2026-03-21' },
-            ]
-          },
-          {
-            id: 4, name: 'Academic Plan',
-            created_at: '2026-03-21',
-            decks: [
-              { id: 6, name: '4 Year Plan', cardCount: 7, created_at: '2026-03-21' },
-            ]
-          },
-        ])
+
+        // // Fake data for now
+        // setCategories([
+        //   {
+        //     id: 1, name: 'Set Theory (CS19...)',
+        //     created_at: '2026-03-18',
+        //     decks: [
+        //       { id: 1, name: 'Week 1 - Intro', cardCount: 10, created_at: '2026-03-18' },
+        //       { id: 2, name: 'Week 2 - Operations', cardCount: 8, created_at: '2026-03-19' },
+        //     ]
+        //   },
+        //   {
+        //     id: 2, name: 'Discrete Mathematics',
+        //     created_at: '2026-03-19',
+        //     decks: [
+        //       { id: 3, name: 'Chapter 1', cardCount: 12, created_at: '2026-03-19' },
+        //     ]
+        //   },
+        //   {
+        //     id: 3, name: 'Java Object Oriented',
+        //     created_at: '2026-03-20',
+        //     decks: [
+        //       { id: 4, name: 'Lecture 1', cardCount: 15, created_at: '2026-03-20' },
+        //       { id: 5, name: 'Lecture 2', cardCount: 9, created_at: '2026-03-21' },
+        //     ]
+        //   },
+        //   {
+        //     id: 4, name: 'Academic Plan',
+        //     created_at: '2026-03-21',
+        //     decks: [
+        //       { id: 6, name: '4 Year Plan', cardCount: 7, created_at: '2026-03-21' },
+        //     ]
+        //   },
+        // ])
       } catch (err) {
         console.error(err)
       }

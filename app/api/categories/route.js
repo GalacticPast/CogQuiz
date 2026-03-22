@@ -1,11 +1,10 @@
-import { getOrCreateCategory } from '@/lib/db'
+import { getAllCategories} from '@/lib/db'
 
 export async function POST(request) {
   try {
-    const body = await request.json().catch(() => ({}))
-    const name = body?.name || 'General'
-
-    const category = await getOrCreateCategory(name)
+    console.log("Im trying to get all the categories")
+    const category = await getAllCategories()
+    console.log(category)
     return Response.json({ success: true, category })
   } catch (e) {
     if (e.message === 'Not authenticated') {

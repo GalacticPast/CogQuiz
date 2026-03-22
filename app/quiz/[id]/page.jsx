@@ -3,33 +3,7 @@ import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 
 
-// I want this inside the 
 
-
-
-const FAKE_CARDS = [
-  {
-    id: 1,
-    question: "What is the powerhouse of the cell?",
-    options: { A: "Nucleus", B: "Mitochondria", C: "Ribosome", D: "Golgi body" },
-    answer: "B",
-    explanation: "Mitochondria produce ATP energy for the cell."
-  },
-  {
-    id: 2,
-    question: "What does DNA stand for?",
-    options: { A: "Deoxyribonucleic Acid", B: "Dynamic Nuclear Array", C: "Dense Neutron Atom", D: "None of these" },
-    answer: "A",
-    explanation: "DNA carries genetic information in all living organisms."
-  },
-  {
-    id: 3,
-    question: "What is Newton's First Law?",
-    options: { A: "F = ma", B: "Every action has reaction", C: "Objects stay at rest unless acted upon", D: "Energy is conserved" },
-    answer: "C",
-    explanation: "Newton's First Law is the law of inertia."
-  }
-]
 
 export default function QuizPage({ params }) {
 
