@@ -1,9 +1,9 @@
 'use client'
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { scheduleReviewSession } from '@/lib/api'
 
-export default function QuizPage() {
+function QuizContent() {
   console.log("wasssup ")
   const resolvedParams = useSearchParams()
   console.log(resolvedParams)
@@ -362,5 +362,17 @@ export default function QuizPage() {
         }
       `}</style>
     </div>
+  )
+}
+
+export default function QuizPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#f5f0e8', color: '#6B4226', fontFamily: "'Inter', sans-serif" }}>
+        Initializing quiz...
+      </div>
+    }>
+      <QuizContent />
+    </Suspense>
   )
 }
