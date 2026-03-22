@@ -1,8 +1,8 @@
 'use client'
 import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
-
-
+// for the google calendar api
+import { scheduleReviewSession } from '@/lib/api'
 
 
 export default function QuizPage({ params }) {
@@ -31,7 +31,7 @@ export default function QuizPage({ params }) {
      */
     const loadCards = async () => {
       if (!deckId) return
-      
+
       try {
         const res = await fetch(`/api/decks/${deckId}/cards`)
         const data = await res.json()
@@ -40,14 +40,14 @@ export default function QuizPage({ params }) {
           // Normalize DB data to match our JSON UI format (Options as {A: "...", B: "..."})
           const normalized = data.cards.map(c => ({
             ...c,
-            options: Array.isArray(c.options) 
-              ? c.options.reduce((acc, opt, i) => { 
-                  acc[String.fromCharCode(65 + i)] = opt; 
-                  return acc; 
-                }, {}) 
+            options: Array.isArray(c.options)
+              ? c.options.reduce((acc, opt, i) => {
+                acc[String.fromCharCode(65 + i)] = opt;
+                return acc;
+              }, {})
               : c.options,
-            answer: typeof c.answer === 'number' 
-              ? String.fromCharCode(65 + c.answer) 
+            answer: typeof c.answer === 'number'
+              ? String.fromCharCode(65 + c.answer)
               : c.answer
           }))
           setCards(normalized)
@@ -71,8 +71,17 @@ export default function QuizPage({ params }) {
     }
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (current + 1 >= cards.length) {
+      try {
+        await scheduleReviewSession({
+          deckId,
+          totalQuestions: cards.length,
+          mistakes: cards.length - score
+        })
+      } catch (e) {
+        console.error('Calendar scheduling failed:', e.message)
+      }
       setFinished(true)
     } else {
       setCurrent(c => c + 1)
