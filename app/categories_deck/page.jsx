@@ -66,6 +66,12 @@ export default function CategoriesPage() {
     load();
   }, []);
 
+  useEffect(() => {
+    console.log("Current Categories:", categories);
+    console.log("Decks Mapped by Category:", decksByCategory);
+  }, [categories, decksByCategory]); // Only logs when these change
+
+  //{ we need to find the number of cards} cards •{" "}
   if (loading)
     return (
       <div
@@ -259,12 +265,9 @@ export default function CategoriesPage() {
                       style={{ color: "#8a6a50", margin: 0, fontSize: "12px" }}
                     >
                       {decksByCategory[cat.id].length || 0}{" "}
-                      {decksByCategory[cat.id].length === 1 ? "deck" : "decks"}{" "}
-                      •{" "}
-                      {new Date(cat.created_at).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      })}
+                      {decksByCategory[cat.id].length === 1
+                        ? "deck"
+                        : "decks"}{" "}
                     </p>
                   </div>
                 </div>
@@ -342,7 +345,7 @@ export default function CategoriesPage() {
                                 whiteSpace: "nowrap",
                               }}
                             >
-                              {deck.name}
+                              {deck.title}
                             </p>
                             <p
                               style={{
@@ -350,10 +353,7 @@ export default function CategoriesPage() {
                                 margin: 0,
                                 fontSize: "11px",
                               }}
-                            >
-                              {decksByCategory[cat.id].title}
-                              {decksByCategory[cat.id].length} cards •{" "}
-                            </p>
+                            ></p>
                           </div>
                         </div>
                         <button
