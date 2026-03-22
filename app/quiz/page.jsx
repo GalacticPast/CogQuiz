@@ -1,9 +1,6 @@
 'use client'
 import { useState, useEffect, use } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-
-
-import { useRouter } from 'next/navigation'
 // for the google calendar api
 import { scheduleReviewSession } from '@/lib/api'
 
