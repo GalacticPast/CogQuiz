@@ -1,19 +1,14 @@
 'use client'
 import { useState, useEffect, use } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-// for the google calendar api
 import { scheduleReviewSession } from '@/lib/api'
 
-
 export default function QuizPage() {
-
-  // TODO: replace with real endpoint when Brizein is ready
-  //const cards == await getCardsByDeck(deckId)
-   console.log("wasssup ")
+  console.log("wasssup ")
   const resolvedParams = useSearchParams()
   console.log(resolvedParams)
-const deckId = resolvedParams.get('deckId')
-console.log(deckId)
+  const deckId = resolvedParams.get('deckId')
+  console.log(deckId)
   const router = useRouter()
   const [cards, setCards] = useState([])
   const [loading, setLoading] = useState(true)
@@ -22,28 +17,20 @@ console.log(deckId)
   const [answered, setAnswered] = useState(false)
   const [score, setScore] = useState(0)
   const [finished, setFinished] = useState(false)
+  const [rating, setRating] = useState(null)
 
   useEffect(() => {
-    /**
-     * @function loadCards
-     * @description Fetches cards for the current deck from the database.
-     * Normalized data ensures compatibility between the database format 
-     * (arrays/numbers) and our UI format (objects/keys).
-     * Brizein: This replaces the FAKE_CARDS once the upload integration is stable.
-     */
     const loadCards = async () => {
       if (!deckId) return
       try {
-      const res = await fetch("/api/cards", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ deckId: deckId}), // <-- Added this!
-              });
-
+        const res = await fetch("/api/cards", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deckId: deckId }),
+        });
         const data = await res.json()
-            console.log("hello" + data)
+        console.log("hello" + data)
         if (data.success && data.cards && data.cards.length > 0) {
-          // Normalize DB data to match our JSON UI format (Options as {A: "...", B: "..."})
           const normalized = data.cards.map(c => ({
             ...c,
             options: Array.isArray(c.options)
@@ -58,10 +45,10 @@ console.log(deckId)
           }))
           setCards(normalized)
         } else {
-          setCards(FAKE_CARDS)
+          setCards([])
         }
       } catch (err) {
-            console.log(err)
+        console.log(err)
       }
       setLoading(false)
     }
@@ -83,7 +70,8 @@ console.log(deckId)
         await scheduleReviewSession({
           deckId,
           totalQuestions: cards.length,
-          mistakes: cards.length - score
+          mistakes: cards.length - score,
+          rating: rating
         })
       } catch (e) {
         console.error('Calendar scheduling failed:', e.message)
@@ -93,6 +81,7 @@ console.log(deckId)
       setCurrent(c => c + 1)
       setSelected(null)
       setAnswered(false)
+      setRating(null)
     }
   }
 
@@ -111,69 +100,52 @@ console.log(deckId)
       transition: 'all 0.2s ease',
       fontFamily: "'Inter', sans-serif"
     }
-
     if (!answered) return base
-
     if (option === cards[current].answer) {
-      return {
-        ...base, backgroundColor: '#d4edda',
-        border: '1px solid #82c98a', color: '#2d6a35'
-      }
+      return { ...base, backgroundColor: '#d4edda',
+        border: '1px solid #82c98a', color: '#2d6a35' }
     }
     if (option === selected && option !== cards[current].answer) {
-      return {
-        ...base, backgroundColor: '#fde8e8',
-        border: '1px solid #e88282', color: '#8b2020'
-      }
+      return { ...base, backgroundColor: '#fde8e8',
+        border: '1px solid #e88282', color: '#8b2020' }
     }
     return { ...base, opacity: 0.5 }
   }
 
-  // Loading state
   if (loading) return (
-    <div style={{
-      display: 'flex', alignItems: 'center',
+    <div style={{ display: 'flex', alignItems: 'center',
       justifyContent: 'center', height: '100vh',
       backgroundColor: '#f5f0e8', color: '#6B4226',
-      fontFamily: "'Inter', sans-serif"
-    }}>
+      fontFamily: "'Inter', sans-serif" }}>
       Loading your quiz...
     </div>
   )
 
-  // Empty state
   if (cards.length === 0) return (
-    <div style={{
-      display: 'flex', flexDirection: 'column',
+    <div style={{ display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       height: '100vh', backgroundColor: '#f5f0e8',
-      fontFamily: "'Inter', sans-serif", color: '#3d2b1f'
-    }}>
+      fontFamily: "'Inter', sans-serif", color: '#3d2b1f' }}>
       <div style={{ fontSize: '48px', marginBottom: '16px' }}>📭</div>
       <h2 style={{ margin: '0 0 8px' }}>No cards due today!</h2>
       <p style={{ color: '#8a6a50' }}>Upload a lecture to get started.</p>
       <button
         onClick={() => router.push('/upload')}
-        style={{
-          marginTop: '20px', padding: '12px 32px',
+        style={{ marginTop: '20px', padding: '12px 32px',
           backgroundColor: '#6B4226', color: 'white',
           border: 'none', borderRadius: '10px',
-          fontSize: '15px', cursor: 'pointer'
-        }}>
+          fontSize: '15px', cursor: 'pointer' }}>
         Upload PDF
       </button>
     </div>
   )
 
-  // Finished state
   if (finished) return (
-    <div style={{
-      display: 'flex', flexDirection: 'column',
+    <div style={{ display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       minHeight: '100vh', backgroundColor: '#f5f0e8',
       fontFamily: "'Inter', sans-serif", color: '#3d2b1f',
-      padding: '20px', boxSizing: 'border-box'
-    }}>
+      padding: '20px', boxSizing: 'border-box' }}>
       <div style={{ fontSize: '64px', marginBottom: '16px' }}>
         {score === cards.length ? '🏆' : score >= cards.length / 2 ? '👍' : '📖'}
       </div>
@@ -181,17 +153,12 @@ console.log(deckId)
       <p style={{ color: '#8a6a50', marginBottom: '32px' }}>
         You got {score} out of {cards.length} correct
       </p>
-
-      <div style={{
-        width: '100%', maxWidth: '380px',
+      <div style={{ width: '100%', maxWidth: '380px',
         backgroundColor: '#fffdf7', border: '1px solid #e8ddd0',
         borderRadius: '16px', padding: '24px',
-        boxSizing: 'border-box', textAlign: 'center'
-      }}>
-        <div style={{
-          fontSize: '3rem', fontWeight: '700',
-          color: '#6B4226', marginBottom: '4px'
-        }}>
+        boxSizing: 'border-box', textAlign: 'center' }}>
+        <div style={{ fontSize: '3rem', fontWeight: '700',
+          color: '#6B4226', marginBottom: '4px' }}>
           {Math.round((score / cards.length) * 100)}%
         </div>
         <p style={{ color: '#8a6a50', margin: '0 0 24px' }}>
@@ -201,13 +168,11 @@ console.log(deckId)
         </p>
         <button
           onClick={() => router.push('/dashboard')}
-          style={{
-            width: '100%', padding: '13px',
+          style={{ width: '100%', padding: '13px',
             backgroundColor: '#6B4226', color: 'white',
             border: 'none', borderRadius: '10px',
             fontSize: '15px', fontWeight: '600',
-            cursor: 'pointer', marginBottom: '10px'
-          }}>
+            cursor: 'pointer', marginBottom: '10px' }}>
           View Dashboard
         </button>
         <button
@@ -215,12 +180,10 @@ console.log(deckId)
             setCurrent(0); setSelected(null)
             setAnswered(false); setScore(0); setFinished(false)
           }}
-          style={{
-            width: '100%', padding: '13px',
+          style={{ width: '100%', padding: '13px',
             backgroundColor: 'transparent', color: '#6B4226',
             border: '1px solid #6B4226', borderRadius: '10px',
-            fontSize: '15px', fontWeight: '600', cursor: 'pointer'
-          }}>
+            fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}>
           Retry Quiz
         </button>
       </div>
@@ -229,21 +192,16 @@ console.log(deckId)
 
   const card = cards[current]
 
-  // Main quiz screen
   return (
-    <div style={{
-      minHeight: '100vh', backgroundColor: '#f5f0e8',
+    <div style={{ minHeight: '100vh', backgroundColor: '#f5f0e8',
       fontFamily: "'Inter', sans-serif", padding: '40px 20px',
-      boxSizing: 'border-box'
-    }}>
+      boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '500px', margin: '0 auto' }}>
 
         {/* Progress bar */}
         <div style={{ marginBottom: '24px' }}>
-          <div style={{
-            display: 'flex', justifyContent: 'space-between',
-            marginBottom: '8px'
-          }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between',
+            marginBottom: '8px' }}>
             <span style={{ color: '#8a6a50', fontSize: '13px' }}>
               Question {current + 1} of {cards.length}
             </span>
@@ -251,38 +209,30 @@ console.log(deckId)
               Score: {score}
             </span>
           </div>
-          <div style={{
-            height: '6px', backgroundColor: '#e0d5c8',
-            borderRadius: '99px', overflow: 'hidden'
-          }}>
+          <div style={{ height: '6px', backgroundColor: '#e0d5c8',
+            borderRadius: '99px', overflow: 'hidden' }}>
             <div style={{
               height: '100%',
               width: `${((current + 1) / cards.length) * 100}%`,
               backgroundColor: '#6B4226',
               borderRadius: '99px',
               transition: 'width 0.3s ease'
-            }} />
+            }}/>
           </div>
         </div>
 
         {/* Question card */}
-        <div style={{
-          backgroundColor: '#fffdf7',
+        <div style={{ backgroundColor: '#fffdf7',
           border: '1px solid #e8ddd0', borderRadius: '16px',
           padding: '28px', marginBottom: '16px',
-          boxShadow: '0 4px 24px rgba(101,72,42,0.06)'
-        }}>
-          <p style={{
-            color: '#8a6a50', fontSize: '12px',
+          boxShadow: '0 4px 24px rgba(101,72,42,0.06)' }}>
+          <p style={{ color: '#8a6a50', fontSize: '12px',
             margin: '0 0 12px', textTransform: 'uppercase',
-            letterSpacing: '0.5px'
-          }}>
+            letterSpacing: '0.5px' }}>
             Question {current + 1}
           </p>
-          <h2 style={{
-            color: '#3d2b1f', fontSize: '1.2rem',
-            fontWeight: '600', margin: '0', lineHeight: '1.5'
-          }}>
+          <h2 style={{ color: '#3d2b1f', fontSize: '1.2rem',
+            fontWeight: '600', margin: '0', lineHeight: '1.5' }}>
             {card.question}
           </h2>
         </div>
@@ -300,27 +250,81 @@ console.log(deckId)
           ))}
         </div>
 
-        {/* Explanation (shows after answering) */}
+        {/* Explanation */}
         {answered && (
           <div style={{
             backgroundColor: selected === card.answer ? '#d4edda' : '#fde8e8',
             border: `1px solid ${selected === card.answer ? '#82c98a' : '#e88282'}`,
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '16px',
-            animation: 'fadeUp 0.3s ease'
+            borderRadius: '12px', padding: '16px',
+            marginBottom: '16px', animation: 'fadeUp 0.3s ease'
           }}>
-            <p style={{
-              margin: '0 0 4px', fontWeight: '600',
-              color: selected === card.answer ? '#2d6a35' : '#8b2020'
-            }}>
+            <p style={{ margin: '0 0 4px', fontWeight: '600',
+              color: selected === card.answer ? '#2d6a35' : '#8b2020' }}>
               {selected === card.answer ? '✅ Correct!' : '❌ Incorrect'}
             </p>
-            <p style={{
-              margin: 0, fontSize: '14px',
-              color: selected === card.answer ? '#2d6a35' : '#8b2020'
-            }}>
+            <p style={{ margin: 0, fontSize: '14px',
+              color: selected === card.answer ? '#2d6a35' : '#8b2020' }}>
               {card.explanation}
+            </p>
+          </div>
+        )}
+
+        {/* Rating System */}
+        {answered && (
+          <div style={{
+            backgroundColor: 'rgba(255,253,247,0.9)',
+            border: '1px solid rgba(232,221,208,0.9)',
+            borderRadius: '14px', padding: '18px 20px',
+            marginBottom: '16px',
+            animation: 'fadeUp 0.3s ease 0.1s both'
+          }}>
+            <p style={{ color: '#3d2b1f', fontSize: '13px',
+              fontWeight: '600', margin: '0 0 12px',
+              textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              How well did you know this?
+            </p>
+            <div style={{ display: 'grid',
+              gridTemplateColumns: 'repeat(6, 1fr)',
+              gap: '8px', marginBottom: '10px' }}>
+              {[
+                { value: 0, label: '0', desc: 'Blank' },
+                { value: 1, label: '1', desc: 'Wrong' },
+                { value: 2, label: '2', desc: 'Hard' },
+                { value: 3, label: '3', desc: 'Struggled' },
+                { value: 4, label: '4', desc: 'Good' },
+                { value: 5, label: '5', desc: 'Easy' },
+              ].map((r) => (
+                <button
+                  key={r.value}
+                  onClick={() => setRating(r.value)}
+                  style={{
+                    padding: '10px 4px',
+                    borderRadius: '10px',
+                    border: `2px solid ${rating === r.value ? '#6B4226' : '#d4c4b0'}`,
+                    backgroundColor: rating === r.value ? '#6B4226' : '#f5f0e8',
+                    color: rating === r.value ? 'white' : '#6B4226',
+                    fontSize: '15px', fontWeight: '700',
+                    cursor: 'pointer', transition: 'all 0.15s ease',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', gap: '3px'
+                  }}
+                >
+                  <span>{r.label}</span>
+                  <span style={{ fontSize: '9px', fontWeight: '400', opacity: 0.8 }}>
+                    {r.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <p style={{ color: '#8a6a50', fontSize: '12px',
+              margin: 0, textAlign: 'center', minHeight: '16px' }}>
+              {rating === null && 'Rate to continue →'}
+              {rating === 0 && '😶 Complete blank — will review tomorrow'}
+              {rating === 1 && '😟 Wrong — will review tomorrow'}
+              {rating === 2 && '😕 Wrong but familiar — reviewing soon'}
+              {rating === 3 && '😐 Correct but struggled — reviewing soon'}
+              {rating === 4 && '🙂 Correct with effort — good progress!'}
+              {rating === 5 && '😄 Perfect! This card will appear less often'}
             </p>
           </div>
         )}
@@ -329,14 +333,23 @@ console.log(deckId)
         {answered && (
           <button
             onClick={handleNext}
+            disabled={rating === null}
             style={{
               width: '100%', padding: '14px',
-              backgroundColor: '#6B4226', color: 'white',
-              border: 'none', borderRadius: '10px',
-              fontSize: '15px', fontWeight: '600',
-              cursor: 'pointer', animation: 'fadeUp 0.3s ease'
+              backgroundColor: rating === null ? '#c4a882' : '#6B4226',
+              color: 'white', border: 'none',
+              borderRadius: '10px', fontSize: '15px',
+              fontWeight: '600',
+              cursor: rating === null ? 'not-allowed' : 'pointer',
+              animation: 'fadeUp 0.3s ease',
+              transition: 'background-color 0.2s ease'
             }}>
-            {current + 1 >= cards.length ? 'See Results →' : 'Next Question →'}
+            {rating === null
+              ? 'Rate your answer first'
+              : current + 1 >= cards.length
+                ? 'See Results →'
+                : 'Next Question →'
+            }
           </button>
         )}
       </div>
