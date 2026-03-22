@@ -26,10 +26,11 @@ export default function UploadPage() {
 
       // It now returns the deck_id upon success
       // ?
+      // need a bufferring sign which shows up while uploading take place 
       const newDeckId = await processUploadedPdf(file);
 
-      // Redirect to the newly created quiz!
-      router.push(`/quiz/${newDeckId}`);
+      // after teh file is succefully uploaded show that the file is uploaded !! 
+       router.push(`/dashboard/`)
     } catch (err) {
       setError(err.message);
       // router.push('/dashboard'); // Only do this if you actually want them to leave the page on error
@@ -151,7 +152,7 @@ export default function UploadPage() {
           </div>
         )}
 
-        {uploading && (
+        {uploading  && (
           <div
             style={{ textAlign: "center", marginTop: "24px", color: "#8a6a50" }}
           >

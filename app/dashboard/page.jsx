@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getDashboardData, getDueCards, getSession } from "../../lib/api";
-
+import CogQuizLogo from "@/components/CogQuizLogo";
 function useCountUp(target, duration = 1000) {
   const [count, setCount] = useState(0)
   useEffect(() => {
@@ -215,17 +215,9 @@ export default function DashboardPage() {
         zIndex: 10
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{
-            width: '34px', height: '34px',
-            backgroundColor: '#6B4226',
-            borderRadius: '10px',
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: '18px'
-          }}>
-            📚
-          </div>
+          <CogQuizLogo size={40} />
           <span style={{ fontWeight: '700', color: '#3d2b1f', fontSize: '16px' }}>
-            StudySnap
+            CogQuiz
           </span>
         </div>
         <button
@@ -278,93 +270,50 @@ export default function DashboardPage() {
             display: 'grid', gridTemplateColumns: '1fr 1fr',
             gap: '12px', marginBottom: '28px'
           }}>
-            {[
-              { emoji: '🔥', value: animatedStreak, label: 'Day streak' },
-              { emoji: '🎯', value: `${animatedAccuracy}%`, label: 'Accuracy' },
-              { emoji: '📚', value: animatedStudied, label: 'Cards studied' },
-              { emoji: '🗂️', value: animatedDecks, label: 'Decks' },
-            ].map((stat, i) => (
-              <div
-                key={i}
-                className="stat-card"
-                style={{
-                  backgroundColor: 'rgba(255,253,247,0.85)',
-                  backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(232,221,208,0.9)',
-                  borderRadius: '14px',
-                  padding: '18px',
-                  boxSizing: 'border-box',
-                  cursor: 'default',
-                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                  animation: `fadeUp 0.4s ease ${i * 0.08}s both`
-                }}
-              >
-                <div style={{ fontSize: '28px', marginBottom: '4px' }}>{stat.emoji}</div>
-                <div style={{
-                  fontSize: '1.8rem', fontWeight: '700',
-                  color: '#6B4226', lineHeight: 1
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{ color: '#8a6a50', fontSize: '13px', marginTop: '4px' }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
+{[
+  { emoji: '🔥', value: animatedStreak, label: 'Day streak' },
+  { emoji: '🎯', value: `${animatedAccuracy}%`, label: 'Accuracy' },
+  { emoji: '📚', value: animatedStudied, label: 'Cards studied' },
+  { emoji: '🗂️', value: animatedDecks, label: 'Category', clickable: true },
+].map((stat, i) => (
+  <div
+    key={i}
+    className={stat.clickable ? 'stat-card category-card' : 'stat-card'}
+    onClick={() => stat.clickable && router.push('/categories_deck')}
+    style={{
+      backgroundColor: 'rgba(255,253,247,0.85)',
+      backdropFilter: 'blur(8px)',
+      WebkitBackdropFilter: 'blur(8px)',
+      border: stat.clickable ? '1px solid #6B4226' : '1px solid rgba(232,221,208,0.9)',
+      borderRadius: '14px',
+      padding: '18px',
+      boxSizing: 'border-box',
+      cursor: stat.clickable ? 'pointer' : 'default',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+      animation: `fadeUp 0.4s ease ${i * 0.08}s both`,
+      position: 'relative'
+    }}
+  >
+    <div style={{ fontSize: '28px', marginBottom: '4px' }}>{stat.emoji}</div>
+    <div style={{ fontSize: '1.8rem', fontWeight: '700',
+      color: '#6B4226', lineHeight: 1 }}>
+      {stat.value}
+    </div>
+    <div style={{ color: '#8a6a50', fontSize: '13px', marginTop: '4px' }}>
+      {stat.label}
+    </div>
+    {stat.clickable && (
+      <div style={{
+        position: 'absolute', top: '12px', right: '12px',
+        color: '#6B4226', fontSize: '14px'
+      }}>
+        →
+      </div>
+    )}
+  </div>
+))}
+  </div>
         )}
-
-        {/* Categories Section */}
-        <div style={{ marginBottom: '28px' }}>
-          <h2 style={{
-            color: '#3d2b1f', fontSize: '1.1rem',
-            fontWeight: '600', marginBottom: '16px'
-          }}>
-            Your Subjects
-          </h2>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
-            gap: '12px'
-          }}>
-            {categories.map((category, i) => (
-              <div
-                key={category.id}
-                className="category-box"
-                style={{
-                  backgroundColor: 'rgba(255,253,247,0.85)',
-                  backdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(232,221,208,0.9)',
-                  borderRadius: '16px',
-                  padding: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  animation: `fadeUp 0.4s ease ${0.4 + i * 0.05}s both`
-                }}
-              >
-                <div style={{ fontSize: '28px', marginBottom: '8px' }}>📚</div>
-                <div style={{
-                  fontWeight: '700', color: '#6B4226',
-                  fontSize: '14px', marginBottom: '4px',
-                  overflow: 'hidden', textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap', width: '100%'
-                }}>
-                  {category.name}
-                </div>
-                <div style={{ color: '#8a6a50', fontSize: '12px' }}>
-                  {category.decks?.length || 0} Decks
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Due Today */}
         <div style={{
           backgroundColor: 'rgba(255,253,247,0.85)',
@@ -538,6 +487,11 @@ export default function DashboardPage() {
         }
         .primary-btn:active {
           transform: translateY(0px) !important;
+        }
+        .category-card:hover {
+        transform: translateY(-4px) !important;
+        box-shadow: 0 8px 24px rgba(107,66,38,0.18) !important;
+        background-color: rgba(107,66,38,0.06) !important;
         }
 
         @media (max-width: 480px) {
