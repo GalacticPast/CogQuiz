@@ -1,4 +1,4 @@
-# Hackbase
+# CogQuiz
 
 An intelligent learning platform that leverages spaced repetition and generative AI to optimize studying workflows. Built with Next.js, the application automates flashcard creation from PDF documents and schedules review sessions dynamically using the SM-2 algorithm.
 
