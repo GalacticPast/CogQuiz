@@ -1,0 +1,83 @@
+with the current changes made, branch psuedh adn having both brizein and sulav pull it succesfuly, now we';re all on teh comon ground. 
+I want you to write me contextual prompt (stating what's been done, what needs to be touched still ) 
+for example, the category that's been displayed on teh dashboard needs to be assigned with the category id that the supabse uses
+
+here's teh supabase sql taht has been used for the user profile id, categories, decks and quizes (if you think there might be a certain error/mistach,
+let me know)
+
+//user profile, decks nd flashcards shema
+'''
+create table decks (
+  id uuid default gen_random_uuid() primary key,
+  category_id uuid references categories(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  title text not null,
+  source_filename text,
+  created_at timestamp with time zone default now()
+);
+
+create table cards (
+  id uuid default gen_random_uuid() primary key,
+  deck_id uuid references decks(id) on delete cascade,
+  user_id uuid references profiles(id) on delete cascade,
+  question text not null,
+  options jsonb,
+  answer integer,
+  explanation text,
+  repetitions integer default 0,
+  interval_days integer default 0,
+  easiness_factor numeric default 2.5,
+  due_date date default current_date,
+  created_at timestamp with time zone default now()
+);
+
+alter table profiles enable row level security;
+alter table decks enable row level security;
+alter table cards enable row level security;
+
+create policy "users see own profile"
+  on profiles for all using (auth.uid() = id);
+
+create policy "users see own decks"
+  on decks for all using (auth.uid() = user_id);
+
+create policy "users see own cards"
+  on cards for all using (auth.uid() = user_id);
+'''
+
+//create progile on new atuh user
+'''
+create or replace function public.handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, email)
+  values (new.id, new.email);
+  return new;
+end;
+$$ language plpgsql security definer;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
+'''
+
+so if the user clicks one of the category on the dashboard (for example: "Computer System and Architecture"), the onClick needs to call 
+a certain function that will getALLDecks based on due today. 
+//important:- check where the due date SM-2 algorithm is stated
+//make sure that the algorithm is implemented correctly 
+// the algorithm plays an important role to stash the decks that the onClick button for each category id is clicked
+//We have quiz page, but not a page that opens once the category is clicked. Make Sulav make a page that fetches the decks on one category call
+// to have it summed up ''user clicks one of the category button ---> the category which has its own category_id (might not be exact, check that)
+will use the getAllDeck through the (react?) function (I think it's on the api.js file )---> all teh decks that gets called are prioritized based on due today
+--> the new page Sulav creates will  have the decks displayed-----> each of the deck has a start quiz button---> onClick of that button, it will now
+prompt to the quiz\page.tsx ---> the quiz page now shows up the multiple quiz questions based on the question generated from teh pdf upload.
+
+// for now let's stick up to this feature update
+
+
+//IMPORTANT:- have Pranaya, Brizein, and Sulav have three separated task, each team members should wary about not touching one's file boundary (prevent git mege conflict)
+// have brizein and sulav communicate with one another for the page for the deck fetch.
+
+
+
+//others:- make sure you include what could be necessary following the imple,emtaitoj that we've just provided 
