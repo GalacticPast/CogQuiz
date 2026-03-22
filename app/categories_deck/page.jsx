@@ -180,24 +180,7 @@ export default function CategoriesPage() {
               {categories.length} subjects
             </p>
           </div>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            style={{
-              padding: "8px 12px",
-              borderRadius: "8px",
-              border: "1px solid #d4c4b0",
-              backgroundColor: "#fffdf7",
-              color: "#6B4226",
-              fontSize: "13px",
-              cursor: "pointer",
-              outline: "none",
-            }}
-          >
-            <option value="newest">Newest first</option>
-            <option value="oldest">Oldest first</option>
-            <option value="name">A → Z</option>
-          </select>
+     
         </div>
 
         {/* Categories List */}
@@ -359,7 +342,7 @@ export default function CategoriesPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/quiz?deckId=${deck.id}`);
+                            router.push(`/quiz/${deck.id}`);
                           }}
                           style={{
                             padding: "8px 16px",

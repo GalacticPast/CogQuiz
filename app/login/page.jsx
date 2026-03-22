@@ -8,6 +8,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [focused, setFocused] = useState('')
+  const [showPassword, setShowPassword] = useState(false)  // ← add this
 
   const handleLogin = async () => {
   setLoading(true)
@@ -33,19 +34,67 @@ export default function LoginPage() {
       justifyContent: 'center',
       minHeight: '100vh',
       backgroundColor: '#f5f0e8',
+      position: 'relative',
+      overflow: 'hidden',
       fontFamily: "'Inter', sans-serif",
       color: '#3d2b1f',
       padding: '20px',
-      boxSizing: 'border-box'
+      boxSizing: 'border-box',
     }}>
-
+      {/* ── WAVY BACKGROUND ── */}
+<div style={{
+  position: 'fixed', inset: 0,
+  pointerEvents: 'none', zIndex: 0,
+  overflow: 'hidden'
+}}>
+  {/* blobs */}
+  <div style={{
+    position: 'absolute', top: '-150px', left: '-120px',
+    width: '600px', height: '600px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(180,130,90,0.22) 0%, transparent 60%)',
+    animation: 'floatSlow1 18s ease-in-out infinite'
+  }}/>
+  <div style={{
+    position: 'absolute', top: '-80px', right: '-100px',
+    width: '500px', height: '500px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(210,185,150,0.24) 0%, transparent 60%)',
+    animation: 'floatSlow2 22s ease-in-out infinite'
+  }}/>
+  <div style={{
+    position: 'absolute', bottom: '-120px', left: '25%',
+    width: '550px', height: '450px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(160,110,70,0.20) 0%, transparent 60%)',
+    animation: 'floatSlow3 26s ease-in-out infinite'
+  }}/>
+  {/* wavy SVG pattern */}
+  <svg style={{
+    position: 'absolute', bottom: 0, left: 0,
+    width: '100%', opacity: 0.15
+  }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#6B4226" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,186.7C672,203,768,181,864,154.7C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+  </svg>
+  <svg style={{
+    position: 'absolute', bottom: 0, left: 0,
+    width: '100%', opacity: 0.08
+  }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#6B4226" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,208C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+  </svg>
+  {/* breathing glow */}
+  <div style={{
+    position: 'absolute', inset: 0,
+    background: 'radial-gradient(circle at 50% 40%, rgba(255,255,255,0.25), transparent 70%)',
+    animation: 'breathe 10s ease-in-out infinite'
+  }}/>
+</div>
       {/* Logo + Title */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         marginBottom: '32px',
-        animation: 'fadeDown 0.5s ease'
+        animation: 'fadeDown 0.5s ease',
+        position: 'relative',
+        zIndex: 1,
       }}>
 <CogQuizLogo size={90} />
 <h1 style={{
@@ -158,38 +207,59 @@ export default function LoginPage() {
         </div>
 
         {/* Password Input */}
-        <div style={{ marginBottom: '24px' }}>
-          <label style={{
-            fontSize: '13px',
-            color: '#8a6a50',
-            display: 'block',
-            marginBottom: '6px',
-            fontWeight: '500'
-          }}>
-            Password
-          </label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onFocus={() => setFocused('password')}
-            onBlur={() => setFocused('')}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              borderRadius: '10px',
-              border: `1px solid ${focused === 'password' ? '#8B5E3C' : '#d4c4b0'}`,
-              backgroundColor: '#f5f0e8',
-              color: '#3d2b1f',
-              fontSize: '15px',
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'all 0.2s ease',
-              boxShadow: focused === 'password' ? '0 0 0 3px rgba(139,94,60,0.12)' : 'none'
-            }}
-          />
-        </div>
+<div style={{ marginBottom: '24px' }}>
+  <label style={{
+    fontSize: '13px',
+    color: '#8a6a50',
+    display: 'block',
+    marginBottom: '6px',
+    fontWeight: '500'
+  }}>
+    Password
+  </label>
+  <div style={{ position: 'relative' }}>
+    <input
+      type={showPassword ? 'text' : 'password'}
+      placeholder="••••••••"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      onFocus={() => setFocused('password')}
+      onBlur={() => setFocused('')}
+      style={{
+        width: '100%',
+        padding: '12px 44px 12px 14px',
+        borderRadius: '10px',
+        border: `1px solid ${focused === 'password' ? '#8B5E3C' : '#d4c4b0'}`,
+        backgroundColor: '#f5f0e8',
+        color: '#3d2b1f',
+        fontSize: '15px',
+        outline: 'none',
+        boxSizing: 'border-box',
+        transition: 'all 0.2s ease',
+        boxShadow: focused === 'password' ? '0 0 0 3px rgba(139,94,60,0.12)' : 'none'
+      }}
+    />
+    <button
+      onClick={() => setShowPassword(!showPassword)}
+      style={{
+        position: 'absolute',
+        right: '12px',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        color: '#8a6a50',
+        fontSize: '16px',
+        padding: '0',
+        display: 'flex',
+        alignItems: 'center'
+      }}
+    >
+      {showPassword ? '🙈' : '👁️'}
+    </button>
+  </div>
+</div>
 
         {/* Login Button */}
         <button
@@ -247,7 +317,30 @@ export default function LoginPage() {
 
         input::placeholder {
           color: #b09880;
+       }
+          input[type="password"]::-ms-reveal,
+          input[type="password"]::-ms-clear,
+          input[type="search"]::-webkit-search-decoration,
+          input[type="search"]::-webkit-search-cancel-button {
+          display: none;
+
         }
+          @keyframes floatSlow1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.08); }
+}
+@keyframes floatSlow2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 40px) scale(1.06); }
+}
+@keyframes floatSlow3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -35px) scale(1.07); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.35; }
+}
       `}</style>
     </div>
   )

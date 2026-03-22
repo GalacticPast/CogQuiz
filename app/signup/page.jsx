@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { signUpWithEmail, signInWithGoogle } from '@/lib/api'
+import CogQuizLogo from '@/components/CogQuizLogo'
 
 export default function SignupPage() {
   const [email, setEmail] = useState('')
@@ -46,41 +47,74 @@ export default function SignupPage() {
       justifyContent: 'center',
       minHeight: '100vh',
       backgroundColor: '#f5f0e8',
+      position: 'relative',
+      overflow: 'hidden',
       fontFamily: "'Inter', sans-serif",
       color: '#3d2b1f',
       padding: '20px',
       boxSizing: 'border-box'
     }}>
-
+      {/* ── WAVY BACKGROUND ── */}
+<div style={{
+  position: 'fixed', inset: 0,
+  pointerEvents: 'none', zIndex: 0,
+  overflow: 'hidden'
+}}>
+  <div style={{
+    position: 'absolute', top: '-150px', left: '-120px',
+    width: '600px', height: '600px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(180,130,90,0.22) 0%, transparent 60%)',
+    animation: 'floatSlow1 18s ease-in-out infinite'
+  }}/>
+  <div style={{
+    position: 'absolute', top: '-80px', right: '-100px',
+    width: '500px', height: '500px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(210,185,150,0.24) 0%, transparent 60%)',
+    animation: 'floatSlow2 22s ease-in-out infinite'
+  }}/>
+  <div style={{
+    position: 'absolute', bottom: '-120px', left: '25%',
+    width: '550px', height: '450px', borderRadius: '50%',
+    background: 'radial-gradient(circle, rgba(160,110,70,0.20) 0%, transparent 60%)',
+    animation: 'floatSlow3 26s ease-in-out infinite'
+  }}/>
+  <svg style={{
+    position: 'absolute', bottom: 0, left: 0,
+    width: '100%', opacity: 0.15
+  }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#6B4226" d="M0,160L48,144C96,128,192,96,288,106.7C384,117,480,171,576,186.7C672,203,768,181,864,154.7C960,128,1056,96,1152,90.7C1248,85,1344,107,1392,117.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+  </svg>
+  <svg style={{
+    position: 'absolute', bottom: 0, left: 0,
+    width: '100%', opacity: 0.08
+  }} viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#6B4226" d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,213.3C672,224,768,224,864,208C960,192,1056,160,1152,154.7C1248,149,1344,171,1392,181.3L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"/>
+  </svg>
+  <div style={{
+    position: 'absolute', inset: 0,
+    background: 'radial-gradient(circle at 50% 40%, rgba(255,255,255,0.25), transparent 70%)',
+    animation: 'breathe 10s ease-in-out infinite'
+  }}/>
+</div>
       {/* Logo */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         marginBottom: '32px',
-        animation: 'fadeDown 0.5s ease'
+        animation: 'fadeDown 0.5s ease',
+        position: 'relative',
+         zIndex: 1
       }}>
-        <div style={{
-          width: '56px',
-          height: '56px',
-          backgroundColor: '#6B4226',
-          borderRadius: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '28px',
-          marginBottom: '12px',
-          boxShadow: '0 4px 14px rgba(107,66,38,0.3)'
-        }}>
-          📚
-        </div>
+        <CogQuizLogo size={40} />
+        <h1 style={{ fontSize: '1.5rem', fontWeight: '600',
+          margin: '0 0 5px', letterSpacing: '-0.5px' }}>
+          CogQuiz
+        </h1>
         <h1 style={{ fontSize: '1.8rem', fontWeight: '700',
           margin: '0 0 6px', letterSpacing: '-0.5px' }}>
           Create Account
         </h1>
-        <p style={{ color: '#8a6a50', margin: 0, fontSize: '14px' }}>
-          Start turning lectures into quizzes
-        </p>
       </div>
 
       {/* Card */}
@@ -293,6 +327,22 @@ export default function SignupPage() {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+          @keyframes floatSlow1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(40px, 30px) scale(1.08); }
+}
+@keyframes floatSlow2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-30px, 40px) scale(1.06); }
+}
+@keyframes floatSlow3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(30px, -35px) scale(1.07); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.35; }
+}
         input::placeholder { color: #b09880; }
       `}</style>
     </div>
