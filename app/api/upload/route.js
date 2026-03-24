@@ -10,7 +10,6 @@ import {
 
 export async function POST(request) {
   try {
-    // 1. Extract the file from the incoming request
     const formData = await request.formData();
     const file = formData.get("file");
 
@@ -19,49 +18,32 @@ export async function POST(request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    // specific gemini call
     const quizData = await generateQuizFromPDF(buffer);
+
     if (quizData.status === 401) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
-    // now we are going to generate the categories
-    const category_id = await getOrCreateCategory(quizData.category);
 
-    // this can change to our specifications
+    const category_id = await getOrCreateCategory(quizData.category);
     const new_deck_id = await getOrCreateDeck(category_id, file.name);
 
-    // Inside your route.js, after you create the newDeckId
-
-    // okay so this might be slow, we can use other aproaches.
-    // but if we make it an array of promises maybe when we return the database might
-    // not be finished with the insertion yet. Oh well.
-    // Use a standard 'for...of' loop for async operations
+    // Your loop is the correct way to handle sequential async inserts!
     for (const item of quizData.questions) {
       await createFlashcard({
-        deckId: new_deck_id, // Make sure this is just the string!
+        deckId: new_deck_id,
         question: item.question,
         optionsPayload: item.options,
         correct_awnser: item.correct,
         explanation: item.explanation,
       });
     }
-    // Once the loop finishes, ALL cards are safely in the database
+
     return NextResponse.json(
       { success: true, deck_id: new_deck_id },
       { status: 200 },
     );
-
-    if (!uploadRes.ok) {
-      return NextResponse.json(
-        { error: "Failed to generate quiz." },
-        { status: 500 },
-      );
-    }
-    return NextResponse.json(
-      { success: true, deck_id: 100001 },
-      { status: 200 },
-    );
   } catch (err) {
+    console.error("Upload Error:", err);
     return NextResponse.json(
       { error: err.message || "Internal server error" },
       { status: 500 },

@@ -21,10 +21,24 @@ export default function UploadPage() {
   }, [router]);
 
   const handleUpload = async (file) => {
+    // Check if file exists and is a PDF
+    if (!file || file.type !== "application/pdf") {
+      setError("Please upload a valid PDF file.");
+      return;
+    }
+
     try {
       setError("");
       setUploading(true);
-      const newDeckId = await processUploadedPdf(file);
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
       setUploading(false);
       router.push(`/dashboard/`);
     } catch (err) {
@@ -32,7 +46,6 @@ export default function UploadPage() {
       setError(err.message);
     }
   };
-
   if (authLoading)
     return (
       <div
