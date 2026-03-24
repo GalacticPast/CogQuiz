@@ -1,69 +1,61 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
 
 export async function middleware(request) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
-  })
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-  if (!supabaseUrl || !supabaseKey) {
-    // Fail gracefully if env vars are missing
-    return response
-  }
+  });
 
   const supabase = createServerClient(
-    supabaseUrl,
-    supabaseKey,
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          // This syncs the cookies between the request and the response
+          cookiesToSet.forEach(({ name, value, options }) =>
+            request.cookies.set(name, value),
+          );
           response = NextResponse.next({
             request,
-          })
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          )
+            response.cookies.set(name, value, options),
+          );
         },
       },
-    }
-  )
+    },
+  );
 
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    const { pathname } = request.nextUrl
+  // Use getSession() instead of getUser() in middleware for speed and to avoid
+  // loops during the Auth Callback process.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const pathname = request.nextUrl.pathname;
 
-    if (user && (pathname === '/login' || pathname === '/signup')) {
-      const redirectResponse = NextResponse.redirect(new URL('/dashboard', request.url))
-      // Copy cookies over to the redirect response
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, { ...cookie })
-      })
-      return redirectResponse
-    }
-
-    if (!user && (pathname === '/dashboard' || pathname === '/upload' || pathname === '/quiz')) {
-      const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, { ...cookie })
-      })
-      return redirectResponse
-    }
-  } catch (error) {
-    console.error('Middleware auth error:', error)
+  // Logic 1: If logged in, don't let them go back to Login/Signup
+  if (session && (pathname === "/login" || pathname === "/signup")) {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  return response
+  // Logic 2: If NOT logged in, protect your routes
+  const protectedRoutes = ["/dashboard", "/upload", "/quiz"];
+  if (!session && protectedRoutes.includes(pathname)) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  return response;
 }
 
 export const config = {
-  matcher: ['/dashboard', '/upload', '/quiz', '/login', '/signup']
-}
+  // This matcher excludes static files and images to keep your middleware fast
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
+};

@@ -1,18 +1,42 @@
-import { createClient } from "@/lib/supabase-server";
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse } from "next/server";
 
 export async function GET(request) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  // "next" allows you to redirect to a specific page after login
+  const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
-    const supabase = await createClient();
+    const response = NextResponse.redirect(new URL(next, origin));
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              request.cookies.set(name, value),
+            );
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options),
+            );
+          },
+        },
+      },
+    );
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+
     if (!error) {
-      return NextResponse.redirect(
-        new URL("/dashboard", request.nextUrl.origin),
-      );
+      return response;
     }
   }
 
-  return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
+  // Return the user to an error page with some instructions
+  return NextResponse.redirect(new URL("/auth/auth-code-error", origin));
 }
