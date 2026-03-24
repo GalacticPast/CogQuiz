@@ -8,6 +8,10 @@ export async function signInWithGoogle() {
   const supabase = createClient();
   return await supabase.auth.signInWithOAuth({
     provider: "google",
+    options: {
+      // THIS IS THE CRITICAL LINE:
+      redirectTo: `${window.location.origin}/api/auth/callback`,
+    },
   });
 }
 
