@@ -9,9 +9,7 @@ async function listModels() {
     const models = await genAI.listModels(); // Wait, does this exist in the current SDK?
     // In newer SDKs, it might be slightly different.
     // Let's see if we can just try a simple generateContent with a different name.
-    console.log("Attempting to list models...");
     for (const model of models) {
-        console.log(model.name);
     }
   } catch (error) {
     console.error("Error listing models:", error);

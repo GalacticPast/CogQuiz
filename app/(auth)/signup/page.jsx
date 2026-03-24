@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { signUpWithEmail, signInWithGoogle } from '@/lib/api'
+import { signUpWithEmail, signInWithGoogle } from '@/services/api'
 import CogQuizLogo from '@/components/CogQuizLogo'
 
 export default function SignupPage() {

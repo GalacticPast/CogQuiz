@@ -1,4 +1,4 @@
-import { getDueDecksByCategory } from "@/lib/db";
+import { getDueDecksByCategory } from "@/services/db";
 
 export async function POST(request) {
   try {

@@ -11,11 +11,11 @@ export default function CategoriesPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [expandedId, setExpandedId] = useState(null);
 
+  // make this faster
   useEffect(() => {
     const load = async () => {
       try {
-        // TODO: swap with real API when Brizein is ready
-        const res = await fetch("/api/categories", { method: "POST" });
+        const res = await fetch("/api/categories", { method: "GET" });
         if (!res.ok) {
         }
 
@@ -40,7 +40,6 @@ export default function CategoriesPage() {
               const data = await res.json();
 
               // Now data.success and data.decks actually exist!
-              console.log(`Success for category ${cat.id}:`, data.success);
 
               // 3. Error checking!
               if (data.success) {
@@ -56,7 +55,6 @@ export default function CategoriesPage() {
             }
           }),
         );
-        console.log(decksMap);
         setDecksByCategory(decksMap);
       } catch (err) {
         console.error(err);
@@ -66,10 +64,7 @@ export default function CategoriesPage() {
     load();
   }, []);
 
-  useEffect(() => {
-    console.log("Current Categories:", categories);
-    console.log("Decks Mapped by Category:", decksByCategory);
-  }, [categories, decksByCategory]); // Only logs when these change
+  useEffect(() => {}, [categories, decksByCategory]); // Only logs when these change
 
   //{ we need to find the number of cards} cards •{" "}
   if (loading)
@@ -102,7 +97,6 @@ export default function CategoriesPage() {
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
-  console.log(categories);
   return (
     <div
       style={{
@@ -186,7 +180,6 @@ export default function CategoriesPage() {
               {categories.length} subjects
             </p>
           </div>
-     
         </div>
 
         {/* Categories List */}
@@ -342,7 +335,7 @@ export default function CategoriesPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            router.push(`/quiz?deckId=${deck.id}`)
+                            router.push(`/quiz?deckId=${deck.id}`);
                           }}
                           style={{
                             padding: "8px 16px",
