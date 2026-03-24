@@ -242,8 +242,8 @@ export default function CategoriesPage() {
                     >
                       {decksByCategory[cat.id].length || 0}{" "}
                       {decksByCategory[cat.id].length === 1
-                        ? "deck"
-                        : "decks"}{" "}
+                        ? "due deck"
+                        : "due decks"}{" "}
                     </p>
                   </div>
                 </div>

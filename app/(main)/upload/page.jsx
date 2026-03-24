@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { processUploadedPdf } from "../../lib/api";
+import { processUploadedPdf } from "@/services/api";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -464,4 +464,3 @@ export default function UploadPage() {
     </div>
   );
 }
-

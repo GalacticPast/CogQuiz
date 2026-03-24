@@ -255,50 +255,54 @@ export async function getDueCardsByDeck(deckId) {
   if (error) throw error;
   return data;
 }
+export async function updateCard(card, userScore) {
+  const supabase = await createClient();
+  console.log("before: ", card);
 
-export async function calculateSM2(card, quality) {
-  let { repetitions, easiness_factor, interval_days } = card; // fixed field names
-  const q = Math.max(0, Math.min(5, quality));
+  const q = Math.max(0, Math.min(5, userScore));
 
+  // Fix: Use card. prefix for all properties
   if (q >= 3) {
-    if (repetitions === 0) interval_days = 1;
-    else if (repetitions === 1) interval_days = 6;
-    else interval_days = Math.ceil(interval_days * easiness_factor);
-    repetitions += 1;
+    if (card.repetitions === 0) {
+      card.interval_days = 1;
+    } else if (card.repetitions === 1) {
+      card.interval_days = 6;
+    } else {
+      // FIX: Added card. prefixes here
+      card.interval_days = Math.ceil(card.interval_days * card.easiness_factor);
+    }
+    card.repetitions += 1;
   } else {
-    repetitions = 0;
-    interval_days = 1;
+    card.repetitions = 0;
+    card.interval_days = 1;
   }
 
-  easiness_factor = Math.max(
+  // Calculate new Easiness Factor
+  card.easiness_factor = Math.max(
     1.3,
-    easiness_factor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)),
+    card.easiness_factor + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02)),
   );
 
+  // Calculate Next Due Date
   const nextDue = new Date();
-  nextDue.setDate(nextDue.getDate() + interval_days);
-  const due_date = nextDue.toISOString().split("T")[0]; // store as date not timestamp
-
-  return { repetitions, easiness_factor, interval_days, due_date };
-}
-
-export async function submitReview(card, userScore) {
-  const supabase = await createClient();
-
-  const newData = calculateSM2(card, userScore);
+  // FIX: Added card. prefix here
+  nextDue.setDate(nextDue.getDate() + card.interval_days);
+  card.due_date = nextDue.toISOString().split("T")[0];
 
   const { error } = await supabase
-    .from("cards") // was 'flashcards'
+    .from("cards")
     .update({
-      repetitions: newData.repetitions,
-      easiness_factor: newData.easiness_factor, // fixed field name
-      interval_days: newData.interval_days, // fixed field name
-      due_date: newData.due_date, // fixed field name
+      repetitions: card.repetitions,
+      easiness_factor: card.easiness_factor,
+      interval_days: card.interval_days,
+      due_date: card.due_date,
     })
     .eq("id", card.id);
 
-  if (error) throw error;
-  return true;
+  if (error) {
+    console.error("Supabase Error:", error);
+    throw error;
+  }
 }
 
 export async function getCardsByDeckId(deckId) {

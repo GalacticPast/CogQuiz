@@ -20,10 +20,8 @@ function QuizContent() {
     const loadCards = async () => {
       if (!deckId) return;
       try {
-        const res = await fetch("/api/cards", {
+        const res = await fetch(`/api/cards?deckId=${deckId}`, {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ deckId: deckId }),
         });
         const data = await res.json();
         if (data.success && data.cards && data.cards.length > 0) {
@@ -44,8 +42,7 @@ function QuizContent() {
         } else {
           setCards([]);
         }
-      } catch (err) {
-      }
+      } catch (err) {}
       setLoading(false);
     };
     loadCards();
@@ -62,30 +59,33 @@ function QuizContent() {
 
   const handleNext = async () => {
     // we never call the sm-2 algo
-   const param = {
-       cardId: cards[current].id,
-       userScore: rating 
-   } 
+    const param = {
+      card: cards[current],
+      userScore: rating,
+    };
+
     try {
-      await fetch updateCard("/api/cards", {
-          method: "GET",
-          body: param, 
+      // we dont need to await this, we can just queue this in the back
+      fetch("/api/cards", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(param), // Ensure this is a string!
       });
     } catch (e) {
       console.error("Error updating card", e.message);
     }
 
     if (current + 1 >= cards.length) {
-      try {
-        await scheduleReviewSession({
-          deckId,
-          totalQuestions: cards.length,
-          mistakes: cards.length - score,
-          rating: rating,
-        });
-      } catch (e) {
-        console.error("Calendar scheduling failed:", e.message);
-      }
+      //try {
+      //  await scheduleReviewSession({
+      //    deckId,
+      //    totalQuestions: cards.length,
+      //    mistakes: cards.length - score,
+      //    rating: rating,
+      //  });
+      //} catch (e) {
+      //  console.error("Calendar scheduling failed:", e.message);
+      //}
       setFinished(true);
     } else {
       setCurrent((c) => c + 1);
@@ -561,4 +561,3 @@ export default function QuizPage() {
     </Suspense>
   );
 }
-

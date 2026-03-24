@@ -1,13 +1,23 @@
-import { getDueCards, getDueCardsByDeck, submitReview } from "@/services/db";
+import { getDueCards, getDueCardsByDeck, updateCard } from "@/services/db";
 
 export async function GET(request) {
   try {
-    // 1. Read the URL parameters
+    // 1. Create the URL object to parse the incoming address
     const url = new URL(request.url);
-    const type = url.searchParams.get("type"); // returns "due"
+    // 2. Extract 'deckId' from the query parameters (?deckId=...)
+    const deckId = url.searchParams.get("deckId");
 
-    const cards = await getDueCards();
+    let cards;
 
+    // 3. Logic Switch: If we have an ID, filter by deck. If not, get all.
+    if (deckId) {
+      // Ensure your service function is imported and takes deckId as an argument
+      cards = await getDueCardsByDeck(deckId);
+    } else {
+      cards = await getDueCards();
+    }
+
+    // 4. Return the data (using 'cards' to match your frontend expectation)
     return Response.json({ success: true, cards });
   } catch (e) {
     if (e.message === "Not authenticated") {
@@ -17,13 +27,12 @@ export async function GET(request) {
     return Response.json({ error: e.message }, { status: 500 });
   }
 }
-
-export async function updateCard(request) {
+export async function PATCH(request) {
   try {
     const body = await request.json();
-    const cardId = body.cardId;
+    const card = body.card;
     const userScore = body.userScore;
-    await submitReview(cardId, userScore);
+    await updateCard(card, userScore);
     return;
   } catch (e) {
     if (e.message === "Not authenticated") {
